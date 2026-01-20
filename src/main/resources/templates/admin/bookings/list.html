@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout}">
+<head>
+    <title>Quản lý Bookings - Admin</title>
+    <style>
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            color: white !important;
+            padding: 2rem !important;
+            border-radius: 12px !important;
+            margin-bottom: 2rem !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+        }
+        .admin-header h2 {
+            margin: 0 !important;
+            font-weight: 600 !important;
+            color: white !important;
+        }
+        .admin-table-card .table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        }
+        .admin-table-card .table thead th {
+            border: none !important;
+            padding: 1rem !important;
+            font-weight: 600 !important;
+            color: white !important;
+        }
+        .admin-table-card .table tbody tr:hover {
+            background-color: #f8f9fa !important;
+        }
+        .admin-table-card .table tbody td {
+            padding: 1rem !important;
+            vertical-align: middle !important;
+        }
+        .admin-price {
+            font-size: 1.1rem !important;
+            font-weight: 600 !important;
+            color: #28a745 !important;
+        }
+        .admin-badge {
+            padding: 0.5rem 0.75rem !important;
+            border-radius: 6px !important;
+            font-size: 0.85rem !important;
+        }
+        .admin-tour-info strong {
+            font-size: 1rem !important;
+            color: #333 !important;
+        }
+        .admin-tour-info small {
+            color: #6c757d !important;
+            font-size: 0.85rem !important;
+        }
+        .admin-actions .btn-group {
+            display: flex !important;
+            gap: 0.5rem !important;
+            white-space: nowrap !important;
+        }
+        .admin-actions .btn-group .btn {
+            margin: 0 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        .table-responsive {
+            overflow-x: auto !important;
+        }
+        .admin-table-card table {
+            min-width: 1200px !important;
+            table-layout: auto !important;
+        }
+        .admin-actions {
+            min-width: 100px !important;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <!-- Header -->
+                <div class="admin-header">
+                    <h2>
+                        <i class="bi bi-shield-check"></i> Quản lý tất cả Bookings
+                    </h2>
+                </div>
+
+                <!-- Success/Error Messages -->
+                <div th:if="${successMessage}" class="alert alert-success alert-dismissible alert-custom fade show" role="alert">
+                    <i class="bi bi-check-circle"></i> <span th:text="${successMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible alert-custom fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i> <span th:text="${errorMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Bookings Table -->
+                <div class="card shadow admin-table-card">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>User</th>
+                                        <th>Tour</th>
+                                        <th>Số người</th>
+                                        <th>Tổng tiền</th>
+                                        <th>Ngày đặt</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thanh toán</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="booking : ${bookings}">
+                                        <td><strong th:text="${booking.id}">1</strong></td>
+                                        <td class="admin-user-info">
+                                            <small class="text-muted">User ID: <span th:text="${booking.userId}"></span></small>
+                                        </td>
+                                        <td class="admin-tour-info">
+                                            <strong th:text="${booking.tourName}">Tour Đà Nẵng</strong><br>
+                                            <small>Khởi hành: <span th:text="${#temporals.format(booking.startDate, 'dd/MM/yyyy')}"></span></small>
+                                        </td>
+                                        <td><i class="bi bi-people-fill text-primary"></i> <span th:text="${booking.numberOfGuests}">2</span></td>
+                                        <td class="admin-price" th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">2,000,000 VNĐ</td>
+                                        <td><small th:text="${#temporals.format(booking.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026 10:00</small></td>
+                                        <td>
+                                            <span th:if="${booking.bookingStatus?.name() == 'PENDING'}" class="badge bg-warning admin-badge">Chờ xác nhận</span>
+                                            <span th:if="${booking.bookingStatus?.name() == 'CONFIRMED'}" class="badge bg-success admin-badge">Đã xác nhận</span>
+                                            <span th:if="${booking.bookingStatus?.name() == 'CANCELLED'}" class="badge bg-danger admin-badge">Đã hủy</span>
+                                            <span th:if="${booking.bookingStatus?.name() == 'COMPLETED'}" class="badge bg-info admin-badge">Hoàn thành</span>
+                                        </td>
+                                        <td>
+                                            <span th:if="${booking.paymentStatus?.name() == 'UNPAID'}" class="badge bg-warning admin-badge">Chưa thanh toán</span>
+                                            <span th:if="${booking.paymentStatus?.name() == 'PAID'}" class="badge bg-success admin-badge">Đã thanh toán</span>
+                                            <span th:if="${booking.paymentStatus?.name() == 'REFUNDED'}" class="badge bg-info admin-badge">Đã hoàn tiền</span>
+                                            <span th:if="${booking.paymentStatus?.name() == 'FAILED'}" class="badge bg-danger admin-badge">Thất bại</span>
+                                        </td>
+                                        <td class="admin-actions">
+                                            <div class="btn-group" role="group">
+                                                <a th:href="@{'/admin/bookings/' + ${booking.id}}" 
+                                                   class="btn btn-sm btn-info"
+                                                   title="Chi tiết">
+                                                    <i class="bi bi-eye"></i> Chi tiết
+                                                </a>
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-danger" 
+                                                        th:if="${booking.bookingStatus?.name() != 'CANCELLED'}"
+                                                        onclick="confirmCancel(this)"
+                                                        th:data-id="${booking.id}"
+                                                        title="Hủy">
+                                                    <i class="bi bi-x-circle"></i> Hủy
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(bookings)}">
+                                        <td colspan="9" class="text-center text-muted py-4">
+                                            <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                                            <p class="mb-0 mt-2">Chưa có booking nào</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden form for cancel -->
+    <form id="cancelForm" method="post" style="display: none;">
+        <input type="hidden" name="_csrf" th:value="${_csrf?.token}">
+    </form>
+
+    <script>
+        function confirmCancel(button) {
+            if (confirm('Bạn có chắc muốn hủy booking này?')) {
+                const bookingId = button.getAttribute('data-id');
+                const form = document.getElementById('cancelForm');
+                form.action = '/admin/bookings/' + bookingId + '/cancel';
+                form.submit();
+            }
+        }
+    </script>
+</div>
+</body>
+</html>

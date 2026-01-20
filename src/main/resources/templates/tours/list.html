@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Danh sách Tours</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-map"></i> Danh sách Tours</h2>
+            <a th:href="@{/tours/create}" 
+               class="btn btn-primary"
+               th:if="${currentUserRole != null && currentUserRole.name() == 'ADMIN'}">
+                <i class="bi bi-plus-circle"></i> Tạo Tour mới
+            </a>
+        </div>
+
+        <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> <span th:text="${message}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <form th:action="@{/tours}" method="get" class="row g-3">
+                    <div class="col-md-10">
+                        <input type="text" 
+                               name="q" 
+                               th:value="${keyword}" 
+                               placeholder="Tìm kiếm tour..." 
+                               class="form-control">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Tìm kiếm
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tên Tour</th>
+                                <th>Giá</th>
+                                <th>Thời gian</th>
+                                <th>Ngày khởi hành</th>
+                                <th>Số chỗ còn</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="tour : ${tours}">
+                                <td th:text="${tour.id}">1</td>
+                                <td>
+                                    <a th:href="@{'/tours/' + ${tour.id}}" 
+                                       class="text-decoration-none fw-bold"
+                                       th:text="${tour.name}">
+                                        Tour Hà Nội
+                                    </a>
+                                </td>
+                                <td th:text="${#numbers.formatDecimal(tour.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">1,000,000 VNĐ</td>
+                                <td th:text="${tour.durationDays} + ' ngày'">3 ngày</td>
+                                <td th:text="${#dates.format(tour.startDate, 'dd/MM/yyyy')}">01/01/2026</td>
+                                <td>
+                                    <span th:text="${tour.availableSlots} + '/' + ${tour.maxGroupSize}">10/20</span>
+                                </td>
+                                <td>
+                                    <span th:if="${tour.status.name() == 'AVAILABLE'}" class="badge bg-success">Còn chỗ</span>
+                                    <span th:if="${tour.status.name() == 'FULLY_BOOKED'}" class="badge bg-warning">Hết chỗ</span>
+                                    <span th:if="${tour.status.name() == 'CANCELLED'}" class="badge bg-danger">Đã hủy</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a th:href="@{'/tours/' + ${tour.id}}" 
+                                           class="btn btn-sm btn-info"
+                                           title="Xem chi tiết">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a th:href="@{'/tours/' + ${tour.id} + '/edit'}" 
+                                           class="btn btn-sm btn-warning"
+                                           th:if="${currentUserRole != null && currentUserRole.name() == 'ADMIN'}"
+                                           title="Sửa">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form th:action="@{'/tours/' + ${tour.id} + '/delete'}" 
+                                              method="post" 
+                                              style="display: inline;"
+                                              th:if="${currentUserRole != null && currentUserRole.name() == 'ADMIN'}">
+                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                            <button type="submit" 
+                                                    class="btn btn-sm btn-danger" 
+                                                    onclick="return confirm('Bạn có chắc muốn xóa tour này?')"
+                                                    title="Xóa">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(tours)}">
+                                <td colspan="8" class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                                    <p class="mb-0 mt-2">Không có tour nào</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{layout :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Danh sách Booking</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-calendar-check"></i> Danh sách Booking của tôi</h2>
+            <a th:href="@{/bookings/create}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Đặt Tour mới
+            </a>
+        </div>
+
+        <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> <span th:text="${message}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${currentUserName}" class="alert alert-info">
+            <i class="bi bi-person"></i> Xin chào, <strong th:text="${currentUserName}"></strong>!
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tour</th>
+                                <th>Số người</th>
+                                <th>Tổng tiền</th>
+                                <th>Ngày đặt</th>
+                                <th>Trạng thái</th>
+                                <th>Thanh toán</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="booking : ${bookings}">
+                                <td th:text="${booking.id}">1</td>
+                                <td>
+                                    <strong th:text="${booking.tourName}">Tour Hà Nội</strong><br>
+                                    <small class="text-muted">Ngày khởi hành: <span th:text="${#temporals.format(booking.startDate, 'dd/MM/yyyy')}"></span></small>
+                                </td>
+                                <td th:text="${booking.numberOfGuests} + ' người'">2 người</td>
+                                <td>
+                                    <strong th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">2,000,000 VNĐ</strong>
+                                </td>
+                                <td th:text="${#temporals.format(booking.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2026 10:00</td>
+                                <td>
+                                    <span th:if="${booking.bookingStatus == 'PENDING'}" class="badge bg-warning">Chờ xác nhận</span>
+                                    <span th:if="${booking.bookingStatus == 'CONFIRMED'}" class="badge bg-success">Đã xác nhận</span>
+                                    <span th:if="${booking.bookingStatus == 'CANCELLED'}" class="badge bg-danger">Đã hủy</span>
+                                    <span th:if="${booking.bookingStatus == 'COMPLETED'}" class="badge bg-info">Hoàn thành</span>
+                                </td>
+                                <td>
+                                    <span th:if="${booking.paymentStatus == 'UNPAID'}" class="badge bg-warning">Chưa thanh toán</span>
+                                    <span th:if="${booking.paymentStatus == 'PAID'}" class="badge bg-success">Đã thanh toán</span>
+                                    <span th:if="${booking.paymentStatus == 'REFUNDED'}" class="badge bg-info">Đã hoàn tiền</span>
+                                    <span th:if="${booking.paymentStatus == 'FAILED'}" class="badge bg-danger">Thất bại</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a th:href="@{'/bookings/' + ${booking.id}}" 
+                                           class="btn btn-sm btn-info"
+                                           title="Chi tiết">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a th:href="@{'/bookings/' + ${booking.id} + '/edit'}" 
+                                           class="btn btn-sm btn-warning"
+                                           sec:authorize="hasRole('ADMIN')"
+                                           th:if="${booking.bookingStatus?.name() == 'PENDING'}"
+                                           title="Sửa (Admin)">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form th:action="@{'/bookings/' + ${booking.id} + '/cancel'}" 
+                                              method="post" 
+                                              style="display: inline;"
+                                              th:if="${booking.bookingStatus?.name() == 'PENDING' || booking.bookingStatus?.name() == 'CONFIRMED'}">
+                                            <button type="submit" 
+                                                    class="btn btn-sm btn-danger" 
+                                                    onclick="return confirm('Bạn có chắc muốn hủy booking này?')"
+                                                    title="Hủy">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(bookings)}">
+                                <td colspan="8" class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                                    <p class="mb-0 mt-2">Bạn chưa có booking nào</p>
+                                    <a th:href="@{/tours}" class="btn btn-primary mt-3">
+                                        <i class="bi bi-map"></i> Xem danh sách Tour
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

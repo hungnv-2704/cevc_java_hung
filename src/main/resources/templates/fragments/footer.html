@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fragments</title>
+</head>
+<body>
+    <!-- Footer Fragment -->
+    <footer th:fragment="footer" class="footer">
+        <div class="container">
+            <p>&copy; 2026 Tour Booking Service. All rights reserved.</p>
+        </div>
+        <script th:src="@{/js/auth.js}"></script>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chỉnh sửa Booking</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Chỉnh sửa Booking</h1>
+        </div>
+
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <div class="form-container">
+            <form th:action="@{/bookings/{id}/edit(id=${booking.id})}" method="post" th:object="${bookingRequest}">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <div class="form-group">
+                    <label for="tourId">Chọn Tour <span class="required">*</span></label>
+                    <select id="tourId" name="tourId" th:field="*{tourId}" class="form-control" required>
+                        <option value="">-- Chọn tour --</option>
+                        <option th:each="tour : ${tours}" th:value="${tour.id}" 
+                                th:text="${tour.name} + ' - ' + ${#numbers.formatDecimal(tour.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                            Tour name - 1000000 VNĐ
+                        </option>
+                    </select>
+                    <span th:if="${#fields.hasErrors('tourId')}" th:errors="*{tourId}" class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="startDate">Ngày bắt đầu <span class="required">*</span></label>
+                    <input type="date" id="startDate" name="startDate" th:field="*{startDate}" 
+                           class="form-control" required>
+                    <span th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}" class="error-message"></span>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="adults">Số người lớn <span class="required">*</span></label>
+                        <input type="number" id="adults" name="adults" th:field="*{adults}" 
+                               class="form-control" min="1" required>
+                        <span th:if="${#fields.hasErrors('adults')}" th:errors="*{adults}" class="error-message"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="children">Số trẻ em</label>
+                        <input type="number" id="children" name="children" th:field="*{children}" 
+                               class="form-control" min="0">
+                        <span th:if="${#fields.hasErrors('children')}" th:errors="*{children}" class="error-message"></span>
+                    </div>
+                </div>
+
+                <h3>Thông tin liên hệ</h3>
+
+                <div class="form-group">
+                    <label for="contactFullName">Họ và tên <span class="required">*</span></label>
+                    <input type="text" id="contactFullName" name="contactFullName" th:field="*{contactFullName}" 
+                           class="form-control" required>
+                    <span th:if="${#fields.hasErrors('contactFullName')}" th:errors="*{contactFullName}" class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="contactEmail">Email <span class="required">*</span></label>
+                    <input type="email" id="contactEmail" name="contactEmail" th:field="*{contactEmail}" 
+                           class="form-control" required>
+                    <span th:if="${#fields.hasErrors('contactEmail')}" th:errors="*{contactEmail}" class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="contactPhone">Số điện thoại <span class="required">*</span></label>
+                    <input type="tel" id="contactPhone" name="contactPhone" th:field="*{contactPhone}" 
+                           class="form-control" required>
+                    <span th:if="${#fields.hasErrors('contactPhone')}" th:errors="*{contactPhone}" class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="specialRequests">Yêu cầu đặc biệt</label>
+                    <textarea id="specialRequests" name="specialRequests" th:field="*{specialRequests}" 
+                              class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Cập nhật</button>
+                    <a th:href="@{/bookings}" class="btn btn-secondary">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

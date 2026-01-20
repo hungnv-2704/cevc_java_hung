@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" 
+      th:replace="~{layout :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Chi tiết Tour</title>
+</head>
+<body>
+<div th:fragment="content">
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2>Chi tiết Tour</h2>
+                    <div>
+                        <a th:href="@{/tours}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Quay lại
+                        </a>
+                        <a th:href="@{'/tours/' + ${tour.id} + '/edit'}" 
+                           class="btn btn-warning"
+                           sec:authorize="hasRole('ADMIN')">
+                            <i class="bi bi-pencil"></i> Sửa
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h3 class="card-title" th:text="${tour.name}">Tour Name</h3>
+                                <p class="text-muted mb-3">
+                                    <i class="bi bi-calendar-event"></i> 
+                                    Ngày khởi hành: <span th:text="${#dates.format(tour.startDate, 'dd/MM/yyyy')}"></span>
+                                </p>
+
+                                <div class="mb-4">
+                                    <h5>Mô tả</h5>
+                                    <p th:text="${tour.description}" style="white-space: pre-wrap;">Description</p>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <strong><i class="bi bi-clock"></i> Thời gian:</strong>
+                                            <span th:text="${tour.durationDays} + ' ngày'"></span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <strong><i class="bi bi-people"></i> Số người tối đa:</strong>
+                                            <span th:text="${tour.maxGroupSize}"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <strong><i class="bi bi-check-circle"></i> Số chỗ còn lại:</strong>
+                                            <span th:text="${tour.availableSlots}"></span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <strong><i class="bi bi-info-circle"></i> Trạng thái:</strong>
+                                            <span th:if="${tour.status.name() == 'AVAILABLE'}" class="badge bg-success">Còn chỗ</span>
+                                            <span th:if="${tour.status.name() == 'FULLY_BOOKED'}" class="badge bg-warning">Hết chỗ</span>
+                                            <span th:if="${tour.status.name() == 'CANCELLED'}" class="badge bg-danger">Đã hủy</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="card bg-light">
+                                    <div class="card-body text-center">
+                                        <h4 class="text-primary mb-3">
+                                            <i class="bi bi-tag"></i> 
+                                            Giá: <span th:text="${#numbers.formatDecimal(tour.price, 0, 'COMMA', 0, 'POINT')}"></span> VNĐ
+                                        </h4>
+                                        
+                                        <div th:if="${tour.status.name() == 'AVAILABLE' && tour.availableSlots > 0}">
+                                            <a th:href="@{/bookings/create(tourId=${tour.id})}" 
+                                               class="btn btn-primary btn-lg w-100">
+                                                <i class="bi bi-calendar-check"></i> Đặt Tour
+                                            </a>
+                                        </div>
+                                        
+                                        <div th:if="${tour.availableSlots == 0}" class="alert alert-warning mt-3">
+                                            <i class="bi bi-exclamation-triangle"></i> Đã hết chỗ
+                                        </div>
+                                        
+                                        <div th:if="${tour.status.name() != 'AVAILABLE'}" class="alert alert-info mt-3">
+                                            <i class="bi bi-info-circle"></i> Tour không khả dụng
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

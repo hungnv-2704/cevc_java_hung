@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout}">
+<head>
+    <title>Chi tiết Booking</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-10 offset-md-1">
+                <div class="card shadow booking-detail-card">
+                    <div class="card-header">
+                        <h4>
+                            <i class="bi bi-ticket-detailed"></i> Chi tiết Booking
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- Tour Information -->
+                        <div class="booking-detail-section">
+                            <h5>
+                                <i class="bi bi-map"></i> Thông tin Tour
+                            </h5>
+                            <div class="booking-info-row">
+                                <div class="booking-info-item">
+                                    <label>Tên Tour:</label>
+                                    <div class="fw-bold" th:text="${booking.tourName}">Tour Đà Nẵng</div>
+                                </div>
+                                <div class="booking-info-item">
+                                    <label>Ngày khởi hành:</label>
+                                    <div class="fw-bold" th:text="${#temporals.format(booking.startDate, 'dd/MM/yyyy')}">20/01/2026</div>
+                                </div>
+                                <div class="booking-info-item" th:if="${booking.endDate}">
+                                    <label>Ngày kết thúc:</label>
+                                    <div class="fw-bold" th:text="${#temporals.format(booking.endDate, 'dd/MM/yyyy')}">25/01/2026</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Booking Information -->
+                        <div class="booking-detail-section">
+                            <h5>
+                                <i class="bi bi-card-checklist"></i> Thông tin Booking
+                            </h5>
+                            <div class="booking-info-row">
+                                <div class="booking-info-item">
+                                    <label>Mã Booking:</label>
+                                    <div class="fw-bold" th:text="${booking.id}">BK001</div>
+                                </div>
+                                <div class="booking-info-item">
+                                    <label>Ngày đặt:</label>
+                                    <div class="fw-bold" th:text="${#temporals.format(booking.createdAt, 'dd/MM/yyyy HH:mm')}">20/01/2026 12:47</div>
+                                </div>
+                                <div class="booking-info-item">
+                                    <label>Số người:</label>
+                                    <div class="fw-bold">
+                                        <i class="bi bi-people-fill text-primary"></i> 
+                                        <span th:text="${booking.numberOfGuests} + ' người'">1 người</span>
+                                    </div>
+                                </div>
+                                <div class="booking-info-item">
+                                    <label>Tổng tiền:</label>
+                                    <div class="fw-bold text-success">
+                                        <span th:text="${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">5,000,000 VNĐ</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="booking-detail-section">
+                            <h5>
+                                <i class="bi bi-flag"></i> Trạng thái
+                            </h5>
+                            <div class="booking-status-badges">
+                                <div class="booking-info-item" style="border-left-color: #ffc107;">
+                                    <label>Trạng thái Booking:</label>
+                                    <div>
+                                        <span th:if="${booking.bookingStatus?.name() == 'PENDING'}" class="badge bg-warning">
+                                            <i class="bi bi-clock"></i> Chờ xác nhận
+                                        </span>
+                                        <span th:if="${booking.bookingStatus?.name() == 'CONFIRMED'}" class="badge bg-success">
+                                            <i class="bi bi-check-circle"></i> Đã xác nhận
+                                        </span>
+                                        <span th:if="${booking.bookingStatus?.name() == 'CANCELLED'}" class="badge bg-danger">
+                                            <i class="bi bi-x-circle"></i> Đã hủy
+                                        </span>
+                                        <span th:if="${booking.bookingStatus?.name() == 'COMPLETED'}" class="badge bg-info">
+                                            <i class="bi bi-star-fill"></i> Hoàn thành
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="booking-info-item" style="border-left-color: #28a745;">
+                                    <label>Trạng thái Thanh toán:</label>
+                                    <div>
+                                        <span th:if="${booking.paymentStatus?.name() == 'UNPAID'}" class="badge bg-warning">
+                                            <i class="bi bi-credit-card"></i> Chưa thanh toán
+                                        </span>
+                                        <span th:if="${booking.paymentStatus?.name() == 'PAID'}" class="badge bg-success">
+                                            <i class="bi bi-check2-circle"></i> Đã thanh toán
+                                        </span>
+                                        <span th:if="${booking.paymentStatus?.name() == 'REFUNDED'}" class="badge bg-info">
+                                            <i class="bi bi-arrow-counterclockwise"></i> Đã hoàn tiền
+                                        </span>
+                                        <span th:if="${booking.paymentStatus?.name() == 'FAILED'}" class="badge bg-danger">
+                                            <i class="bi bi-exclamation-triangle"></i> Thất bại
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="booking-actions">
+                            <a th:href="@{/bookings}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Quay lại
+                            </a>
+                            <div class="d-flex gap-2">
+                                <a th:href="@{'/bookings/' + ${booking.id} + '/edit'}" 
+                                   class="btn btn-warning"
+                                   th:if="${booking.bookingStatus?.name() == 'PENDING'}">
+                                    <i class="bi bi-pencil"></i> Chỉnh sửa
+                                </a>
+                                <form th:action="@{'/bookings/' + ${booking.id} + '/cancel'}" 
+                                      method="post" 
+                                      style="display: inline;"
+                                      th:if="${booking.bookingStatus?.name() == 'PENDING' || booking.bookingStatus?.name() == 'CONFIRMED'}">
+                                    <button type="submit" 
+                                            class="btn btn-danger" 
+                                            onclick="return confirm('Bạn có chắc muốn hủy booking này?')">
+                                        <i class="bi bi-x-circle"></i> Hủy Booking
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

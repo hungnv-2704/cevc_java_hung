@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tour Booking - Trang chủ</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .hero p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .feature-card h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="hero">
+        <div class="container">
+            <h1>🌏 Chào mừng đến với Tour Booking</h1>
+            <p>Khám phá những điểm đến tuyệt vời trên khắp Việt Nam</p>
+            <a th:href="@{/tours}" class="btn btn-primary" style="font-size: 1.2rem; padding: 1rem 2rem;">Xem Tours</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2 style="text-align: center; margin-bottom: 2rem; color: #2c3e50;">Tính năng chính</h2>
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🗺️</div>
+                <h3>Quản lý Tours</h3>
+                <p>Tạo và quản lý các tour du lịch với đầy đủ thông tin chi tiết</p>
+                <a th:href="@{/tours}" class="btn btn-info">Xem Tours</a>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📝</div>
+                <h3>Đặt Tour</h3>
+                <p>Đặt tour trực tuyến nhanh chóng và dễ dàng</p>
+                <a th:href="@{/bookings}" class="btn btn-info">Đặt Tour</a>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <h3>Quản lý người dùng</h3>
+                <p>Đăng ký và quản lý thông tin người dùng</p>
+                <a th:href="@{/users}" class="btn btn-info">Người dùng</a>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
