@@ -25,7 +25,7 @@
                 <!-- Show when authenticated -->
 <li sec:authorize="isAuthenticated()">
                     <span>
-                        Xin chào, <strong th:text="${currentUserName != null ? currentUserName : #authentication.name}">User</strong> 
+                        Xin chào, <strong th:text="${currentUserName != null ? currentUserName : #authentication?.name}">User</strong> 
                         <span sec:authorize="hasRole('ADMIN')" style="color: #9b59b6;">| Admin</span> | 
                         <form th:action="@{/logout}" method="post" style="display: inline;">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
