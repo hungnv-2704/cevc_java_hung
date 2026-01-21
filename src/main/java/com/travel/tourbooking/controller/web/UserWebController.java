@@ -60,7 +60,7 @@ public class UserWebController {
                     .name(user.getName())
                     .email(user.getEmail())
                     .phoneNumber(user.getPhoneNumber())
-                    .password("") // Don't populate password for security
+                    .password("")
                     .build();
             model.addAttribute("user", user);
             model.addAttribute("userRequest", userRequest);

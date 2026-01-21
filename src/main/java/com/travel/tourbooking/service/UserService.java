@@ -23,17 +23,14 @@ public class UserService {
 
     @Transactional
     public UserResponse create(UserRequest request) {
-        // Validate username uniqueness
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new IllegalArgumentException("Username already exists: " + request.getUsername());
         }
         
-        // Validate email uniqueness
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Email already exists: " + request.getEmail());
         }
 
-        // Validate phone number uniqueness if provided
         if (request.getPhoneNumber() != null && !request.getPhoneNumber().isEmpty()) {
             if (userRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent()) {
                 throw new IllegalArgumentException("Phone number already exists: " + request.getPhoneNumber());
@@ -57,21 +54,18 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
 
-        // Validate username uniqueness if changed
         if (!user.getUsername().equals(request.getUsername())) {
             if (userRepository.findByUsername(request.getUsername()).isPresent()) {
                 throw new IllegalArgumentException("Username already exists: " + request.getUsername());
             }
         }
 
-        // Validate email uniqueness if changed
         if (!user.getEmail().equals(request.getEmail())) {
             if (userRepository.findByEmail(request.getEmail()).isPresent()) {
                 throw new IllegalArgumentException("Email already exists: " + request.getEmail());
             }
         }
 
-        // Validate phone number uniqueness if changed
         if (request.getPhoneNumber() != null && 
             !request.getPhoneNumber().equals(user.getPhoneNumber())) {
             if (userRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent()) {

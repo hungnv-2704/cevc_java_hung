@@ -18,5 +18,4 @@ public class UserResponse implements Serializable {
     private String name;
     private String email;
     private String phoneNumber;
-    // Note: password is not included in response for security
 }

@@ -31,7 +31,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         System.out.println("Found user: " + user.getUsername() + ", role: " + user.getRole());
         System.out.println("Password is set: " + (user.getPassword() != null && !user.getPassword().isEmpty()));
         
-        // Check if user is OAuth user (no password set)
         if (user.getPassword() == null || user.getPassword().isEmpty()) {
             throw new UsernameNotFoundException("User registered with OAuth. Please use Google login.");
         }

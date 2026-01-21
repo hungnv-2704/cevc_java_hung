@@ -99,7 +99,6 @@ public class BookingTourService {
         if (newStatus == BookingStatus.CANCELLED) {
             booking.setCanceledAt(LocalDateTime.now());
             
-            // Return available slots to tour
             Tour tour = tourRepository.findByIdForUpdate(booking.getTour().getId())
                     .orElseThrow(() -> new IllegalArgumentException("Tour not found: " + booking.getTour().getId()));
             tour.setAvailableSlots(tour.getAvailableSlots() + booking.getQuantity());
@@ -141,7 +140,6 @@ public class BookingTourService {
 
     @Transactional
     public BookingTourResponse create(BookingTourRequest request, Long userId) {
-        // Validate request
         if (request.getTourId() == null) {
             throw new IllegalArgumentException("Tour ID is required");
         }
@@ -152,11 +150,9 @@ public class BookingTourService {
             throw new IllegalArgumentException("User ID is required");
         }
 
-        // Find user
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
 
-        // Find tour
         Tour tour = tourRepository.findByIdForUpdate(request.getTourId())
                 .orElseThrow(() -> new IllegalArgumentException("Tour not found: " + request.getTourId()));
 
@@ -170,11 +166,9 @@ public class BookingTourService {
             throw new IllegalStateException("Not enough available slots");
         }
 
-        // Update tour availability
         tour.setAvailableSlots(tour.getAvailableSlots() - totalPeople);
         tourRepository.save(tour);
 
-        // Create booking with user
         LocalDateTime now = LocalDateTime.now();
         BookingTour booking = BookingTour.builder()
                 .user(user)
@@ -202,7 +196,6 @@ public class BookingTourService {
         BookingTour booking = bookingTourRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found: " + id));
 
-        // Update fields if provided
         if (request.getStartDate() != null) {
             booking.setBookingDate(request.getStartDate());
         }
@@ -212,7 +205,6 @@ public class BookingTourService {
             int oldPeople = booking.getNumberOfPeople();
             int difference = newTotalPeople - oldPeople;
             
-            // Adjust tour availability
             if (difference != 0) {
                 Tour tour = booking.getTour();
                 if (difference > 0) {
@@ -226,7 +218,6 @@ public class BookingTourService {
                 tourRepository.save(tour);
                 
                 booking.setNumberOfPeople(newTotalPeople);
-                // Recalculate total price
                 if (tour.getPrice() != null) {
                     booking.setTotalPrice(java.math.BigDecimal.valueOf(tour.getPrice() * newTotalPeople));
                 }
@@ -249,7 +240,6 @@ public class BookingTourService {
             return false;
         }
 
-        // Restore tour slots before deleting
         Tour tour = booking.getTour();
         if (tour != null) {
             tour.setAvailableSlots(tour.getAvailableSlots() + booking.getNumberOfPeople());

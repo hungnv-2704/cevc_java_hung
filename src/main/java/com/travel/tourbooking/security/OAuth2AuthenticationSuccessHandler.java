@@ -35,13 +35,11 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         String email = oAuth2User.getAttribute("email");
 
-        // Find user and generate JWT token
         Optional<User> userOptional = userRepository.findByEmail(email);
         
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             
-            // Create authentication with authorities
             List<GrantedAuthority> authorities = Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
             );
@@ -58,7 +56,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             
             String token = jwtTokenProvider.generateToken(auth);
 
-            // Redirect to frontend with token
             String targetUrl = UriComponentsBuilder.fromUriString("/")
                     .queryParam("token", token)
                     .build().toUriString();
